@@ -5,27 +5,49 @@
         <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
         <script src="https://raw.githack.com/AR-js-org/studio-backend/master/src/modules/marker/tools/gesture-detector.js"></script>
         <script src="https://raw.githack.com/AR-js-org/studio-backend/master/src/modules/marker/tools/gesture-handler.js"></script>
-        <script>
-            AFRAME.registerComponent('videohandler', {
-                init: function () {
-                    var marker = this.el;
-                    this.vid = document.querySelector("#vid");
-
-                    marker.addEventListener('markerFound', function () {
-                        this.toggle = true;
-                        this.vid.play();
-                    }.bind(this));
-
-                    marker.addEventListener('markerLost', function () {
-                        this.toggle = false;
-                        this.vid.pause();
-                    }.bind(this));
-                },
-            });
-        </script>
+        <script src="handlers/vid.js"></script>
+        <style>
+            #controlPanel {
+                position: fixed;
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 50%;
+                background: rgba(255, 255, 255, 0.8);
+                padding: 15px;
+                border-radius: 15px 15px 0 0;
+                z-index: 1000;
+                text-align: center;
+                display: flex;
+                justify-content: space-between;
+                gap: 20px;  /* Increased gap for two buttons */
+            }
+            .control-btn {
+                flex: 1;
+                padding: 15px 10px;
+                background: #A22A61;
+                color: white;
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                font-size: 1.8em;
+                font-weight: bold;
+                min-width: 0;
+                line-height: 1;
+            }
+            .control-btn:hover {
+                background: black;
+            }
+            #playPauseBtn { background: #7F7F7F; }
+            #playPauseBtn:hover { background: black; }
+        </style>
     </head>
 
     <body style="margin: 0; overflow: hidden;">
+        <div id="controlPanel">
+            <button class="control-btn" id="playPauseBtn">▶</button>
+            <button class="control-btn" id="nextVideo">⏭</button>
+        </div>
         <a-scene
             vr-mode-ui="enabled: false"
             loading-screen="enabled: false;"
@@ -36,14 +58,25 @@
         >
             <a-assets>
                 <video
-                    id="vid"
-                    src="assets/asset.mp4"
+                    id="vid1"
+                    src="assets/vid1.mp4"
                     preload="auto"
                     response-type="arraybuffer"
                     loop
                     crossorigin
                     webkit-playsinline
                     autoplay
+                    muted
+                    playsinline
+                ></video>
+                <video
+                    id="vid2"
+                    src="assets/vid2.mp4"
+                    preload="auto"
+                    response-type="arraybuffer"
+                    loop
+                    crossorigin
+                    webkit-playsinline
                     muted
                     playsinline
                 ></video>
@@ -56,20 +89,37 @@
                 videohandler
                 smooth="true"
                 smoothCount="10"
-                smoothTolerance="0.01"
+                smoothTolerance="0.001"
                 smoothThreshold="5"
                 raycaster="objects: .clickable"
                 emitevents="true"
                 cursor="fuse: false; rayOrigin: mouse;"
                 id="markerA"
+                clickable
             >
+                <a-text 
+                id="videoTitle"
+                value="Video 1: Environment demo"
+                position="0 0.2 -1.8"
+                rotation="-90 0 0"
+                align="center"
+                color="black"
+                scale="1 1 1"
+                font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+                ></a-text>
+        
                 <a-video
-                    src="#vid"
-                    scale="10 10 10"
+                    width="5"
+                    height="3"
                     position="0 0.1 0"
                     rotation="-90 0 0"
                     class="clickable"
                     gesture-handler
+                    raycaster="objects: .clickable"
+                    emitevents="true"
+                    cursor="fuse: false; rayOrigin: mouse;"
+                    id="mainVideo"
+                    material="src: #vid1"
                 ></a-video>
             </a-marker>
 
