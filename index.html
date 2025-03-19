@@ -12,7 +12,8 @@
                 bottom: 0;
                 left: 50%;
                 transform: translateX(-50%);
-                width: 50%;
+                width: 90%;  /* Changed from 50% to be more responsive */
+                max-width: 600px;  /* Added max-width */
                 background: rgba(255, 255, 255, 0.8);
                 padding: 15px;
                 border-radius: 15px 15px 0 0;
@@ -24,13 +25,13 @@
             }
             .control-btn {
                 flex: 1;
-                padding: 15px 10px;
+                padding: min(3vw, 15px) min(2vw, 10px);  /* Responsive padding */
                 background: #A22A61;
                 color: white;
                 border: none;
                 border-radius: 10px;
                 cursor: pointer;
-                font-size: 1.8em;
+                font-size: min(4vw, 2em);  /* Responsive font size with maximum */
                 font-weight: bold;
                 min-width: 0;
                 line-height: 1;
@@ -56,17 +57,43 @@
                 height: 100%;
                 object-fit: contain;
             }
+            #targetBox {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 300px;
+                height: 300px;
+                border: 3px dashed rgba(255, 255, 255, 0.8);
+                z-index: 999;
+                pointer-events: none;
+            }
+            #targetText {
+                position: fixed;
+                top: 28%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                color: white;
+                font-size: 16px;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+                background: rgba(0, 0, 0, 0.5);
+                padding: 8px;
+                border-radius: 4px;
+                z-index: 999;
+            }
         </style>
     </head>
 
     <body style="margin: 0; overflow: hidden;">
+        <div id="targetBox"></div>
+        <div id="targetText">Align marker within the box</div>
         <div id="normalVideoContainer">
             <video id="normalVideo" controls playsinline></video>
         </div>
         <div id="controlPanel">
             <button class="control-btn" id="playPauseBtn">▶</button>
             <button class="control-btn" id="nextVideo">⏭</button>
-            <button class="control-btn" id="modeToggleBtn">AR</button>
+            <button class="control-btn" id="modeToggleBtn">2D</button>
         </div>
         <a-scene
             vr-mode-ui="enabled: false"

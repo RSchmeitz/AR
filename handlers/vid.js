@@ -16,6 +16,9 @@ AFRAME.registerComponent('videohandler', {
         let lastMarkerTime = 0;
         const MARKER_TIMEOUT = 300; // Time in ms before considering marker lost
 
+        const targetBox = document.querySelector("#targetBox");
+        const targetText = document.querySelector("#targetText");
+
         marker.addEventListener('markerFound', function () {
             markerVisible = true;
             lastMarkerTime = Date.now();
@@ -28,6 +31,10 @@ AFRAME.registerComponent('videohandler', {
                 playPauseBtn.innerHTML = '⏸';
             }
             this.warmupFrames = (this.warmupFrames || 0) + 1;
+            
+            // Hide guide elements when marker is found
+            targetBox.style.display = 'none';
+            targetText.style.display = 'none';
         }.bind(this));
 
         marker.addEventListener('markerLost', function () {
@@ -101,6 +108,11 @@ AFRAME.registerComponent('videohandler', {
                 normalVideoContainer.style.display = 'none';
                 scene.style.display = 'block';
                 modeToggleBtn.textContent = '2D';
+                // Show guide elements when switching to AR mode (only if marker not detected)
+                if (!markerVisible) {
+                    targetBox.style.display = 'block';
+                    targetText.style.display = 'block';
+                }
                 if (this.currentVid) {
                     normalVideo.pause();
                     this.currentVid.play();
@@ -109,6 +121,9 @@ AFRAME.registerComponent('videohandler', {
                 normalVideoContainer.style.display = 'block';
                 scene.style.display = 'none';
                 modeToggleBtn.textContent = 'AR';
+                // Hide guide elements in 2D mode
+                targetBox.style.display = 'none';
+                targetText.style.display = 'none';
                 if (this.currentVid) {
                     this.currentVid.pause();
                     normalVideo.src = this.currentVid.src;
