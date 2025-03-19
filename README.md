@@ -56,34 +56,35 @@ this.videoTitles = ["Experimental Results", "Comparative Analysis"];
 - Marker detection latency: ~300ms
 - Video format: H.264 encoded MP4
 
-## Deployment on GitLab Pages
+## Deployment on GitHub Pages
 
 ### Quick Setup
-1. Enable GitLab Pages for your repository:
+1. Enable GitHub Pages for your repository:
    - Go to Settings > Pages
-   - Ensure your repository is public or you have proper GitLab license
+   - Select branch 'main' (or 'master') as source
+   - Select root folder (/) as source
 
 2. Configure your domain (optional):
-   - Default URL: https://username.gitlab.io/project-name
+   - Default URL: https://username.github.io/repository-name
    - Custom domain can be configured in Pages settings
 
 ### Automatic Deployment
-The included `.gitlab-ci.yml` handles automatic deployment:
+The included `.github/workflows/deploy.yml` handles automatic deployment:
 - Builds on every push to main/master
-- Deploys to GitLab Pages
+- Deploys to GitHub Pages automatically
 - No additional configuration needed
 
 ### Testing Your Deployment
-1. After pushing changes, check pipeline status in CI/CD > Pipelines
+1. After pushing changes, check Actions tab for deployment status
 2. Once deployed, your AR demo will be available at:
-   - https://username.gitlab.io/project-name
+   - https://username.github.io/repository-name
    - Or your custom domain if configured
 
 ### Best Practices
 - Test locally before pushing
-- Ensure all assets are relative paths
-- Keep video files under GitLab's size limits
-- Use asset compression for large files
+- Ensure all assets use relative paths
+- Keep video files under GitHub's size limits
+- Use Git LFS for large files if needed
 
 ## QR Code Generation for Easy Access
 
@@ -93,12 +94,12 @@ The included `.gitlab-ci.yml` handles automatic deployment:
 pip install qrcode
 ```
 
-2. Generate QR code for your GitLab Pages URL:
+2. Generate QR code for your GitHub Pages URL:
 ```python
 import qrcode
 
-# Replace with your actual GitLab Pages URL
-url = "https://username.gitlab.io/project-name"
+# Replace with your actual GitHub Pages URL
+url = "https://username.github.io/repository-name"
 
 # Generate QR code
 qr = qrcode.QRCode(version=1, box_size=10, border=5)
@@ -116,9 +117,9 @@ qr_image.save("ar_demo_qr.png")
    - Test QR code readability under presentation lighting
 
 ### URL Structure
-- Default GitLab Pages URL format: 
-  - `https://username.gitlab.io/project-name`
-  - Example: `https://research-lab.gitlab.io/ar-demo`
+- Default GitHub Pages URL format: 
+  - `https://username.github.io/repository-name`
+  - Example: `https://research-lab.github.io/ar-demo`
 - Custom domain (if configured):
   - `https://your-custom-domain.com`
 

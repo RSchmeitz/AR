@@ -1,3 +1,48 @@
+AFRAME.registerComponent('scale-on-pinch', {
+    init: function () {
+        this.scale = {x: 1, y: 1, z: 1};
+        this.initialDistance = 0;
+        this.initialScale = 1;
+
+        this.handleTouchStart = (e) => {
+            if (e.touches.length === 2) {
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                this.initialDistance = Math.hypot(
+                    touch2.pageX - touch1.pageX,
+                    touch2.pageY - touch1.pageY
+                );
+                this.initialScale = this.el.object3D.scale.x;
+            }
+        };
+
+        this.handleTouchMove = (e) => {
+            if (e.touches.length === 2) {
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                const currentDistance = Math.hypot(
+                    touch2.pageX - touch1.pageX,
+                    touch2.pageY - touch1.pageY
+                );
+                const scaleFactor = currentDistance / this.initialDistance;
+                const newScale = this.initialScale * scaleFactor;
+                
+                // Limit scale between 0.5 and 3
+                const limitedScale = Math.min(Math.max(newScale, 0.5), 3);
+                this.el.object3D.scale.set(limitedScale, limitedScale, limitedScale);
+            }
+        };
+
+        this.el.sceneEl.canvas.addEventListener('touchstart', this.handleTouchStart);
+        this.el.sceneEl.canvas.addEventListener('touchmove', this.handleTouchMove);
+    },
+
+    remove: function () {
+        this.el.sceneEl.canvas.removeEventListener('touchstart', this.handleTouchStart);
+        this.el.sceneEl.canvas.removeEventListener('touchmove', this.handleTouchMove);
+    }
+});
+
 AFRAME.registerComponent('videohandler', {
     init: function () {
         var marker = this.el;
