@@ -131,14 +131,18 @@
                 url="assets/p_marker.patt"
                 videohandler
                 smooth="true"
-                smoothCount="10"
-                smoothTolerance="0.001"
-                smoothThreshold="5"
+                smoothCount="5"
+                smoothTolerance="0.01"
+                smoothThreshold="2"
                 raycaster="objects: .clickable"
                 emitevents="true"
                 cursor="fuse: false; rayOrigin: mouse;"
                 id="markerA"
                 clickable
+                registerevents
+                maxDetectionRate="60"
+                warmupTolerance="5"
+                minConfidence="0.60"
             >
                 <a-text 
                 id="videoTitle"

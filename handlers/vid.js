@@ -12,20 +12,36 @@ AFRAME.registerComponent('videohandler', {
 
         var videoEl = marker.querySelector('a-video'); // Select the video entity
 
+        let markerVisible = false;
+        let lastMarkerTime = 0;
+        const MARKER_TIMEOUT = 300; // Time in ms before considering marker lost
+
         marker.addEventListener('markerFound', function () {
-            if (this.currentVid) {
+            markerVisible = true;
+            lastMarkerTime = Date.now();
+            if (!this.warmupComplete && this.warmupFrames >= 5) {
+                this.warmupComplete = true;
+            }
+            if (this.warmupComplete && this.currentVid) {
                 this.currentVid.play();
                 isPlaying = true;
                 playPauseBtn.innerHTML = '⏸';
             }
+            this.warmupFrames = (this.warmupFrames || 0) + 1;
         }.bind(this));
 
         marker.addEventListener('markerLost', function () {
-            if (this.currentVid) {
-                this.currentVid.pause();
-                isPlaying = false;
-                playPauseBtn.innerHTML = '▶';
-            }
+            // Only consider the marker truly lost after MARKER_TIMEOUT ms
+            setTimeout(() => {
+                if (Date.now() - lastMarkerTime > MARKER_TIMEOUT) {
+                    markerVisible = false;
+                    if (this.currentVid) {
+                        this.currentVid.pause();
+                        isPlaying = false;
+                        playPauseBtn.innerHTML = '▶';
+                    }
+                }
+            }, MARKER_TIMEOUT);
         }.bind(this));
 
         // Control panel functionality
@@ -104,5 +120,12 @@ AFRAME.registerComponent('videohandler', {
         nextBtn.addEventListener('click', switchToNextVideo);
         playPauseBtn.addEventListener('click', togglePlayPause);
         modeToggleBtn.addEventListener('click', toggleMode);
+
+        // Add tick function to handle tracking stability
+        this.tick = function() {
+            if (markerVisible && !this.warmupComplete) {
+                marker.object3D.visible = this.warmupFrames >= 5;
+            }
+        };
     },
 });
