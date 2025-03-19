@@ -31,7 +31,12 @@ AFRAME.registerComponent('videohandler', {
         // Control panel functionality
         const nextBtn = document.querySelector("#nextVideo");
         const playPauseBtn = document.querySelector("#playPauseBtn");
+        const modeToggleBtn = document.querySelector("#modeToggleBtn");
+        const normalVideoContainer = document.querySelector("#normalVideoContainer");
+        const normalVideo = document.querySelector("#normalVideo");
+        const scene = document.querySelector("a-scene");
         let isPlaying = false;
+        let isARMode = true;
 
         const togglePlayPause = () => {
             if (this.currentVid) {
@@ -67,9 +72,37 @@ AFRAME.registerComponent('videohandler', {
             this.currentVid.play();
             isPlaying = true;
             playPauseBtn.innerHTML = '⏸';
+
+            if (!isARMode) {
+                normalVideo.src = this.currentVid.src;
+                normalVideo.play();
+            }
+        };
+
+        const toggleMode = () => {
+            isARMode = !isARMode;
+            if (isARMode) {
+                normalVideoContainer.style.display = 'none';
+                scene.style.display = 'block';
+                modeToggleBtn.textContent = '2D';
+                if (this.currentVid) {
+                    normalVideo.pause();
+                    this.currentVid.play();
+                }
+            } else {
+                normalVideoContainer.style.display = 'block';
+                scene.style.display = 'none';
+                modeToggleBtn.textContent = 'AR';
+                if (this.currentVid) {
+                    this.currentVid.pause();
+                    normalVideo.src = this.currentVid.src;
+                    normalVideo.play();
+                }
+            }
         };
 
         nextBtn.addEventListener('click', switchToNextVideo);
         playPauseBtn.addEventListener('click', togglePlayPause);
+        modeToggleBtn.addEventListener('click', toggleMode);
     },
 });
