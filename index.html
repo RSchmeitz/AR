@@ -150,10 +150,11 @@
             
 
             <a-marker
+                id="p_marker"
                 type="pattern"
                 preset="custom"
                 url="assets/p_marker.patt"
-                videohandler
+                videohandler="markerId: p"
                 smooth="true"
                 smoothCount="5"
                 smoothTolerance="0.01"
@@ -161,24 +162,19 @@
                 raycaster="objects: .clickable"
                 emitevents="true"
                 cursor="fuse: false; rayOrigin: mouse;"
-                id="markerA"
                 clickable
                 registerevents
-                maxDetectionRate="60"
-                warmupTolerance="5"
-                minConfidence="0.60"
             >
                 <a-text 
-                id="videoTitle"
-                value="Video 1: Environment demo"
-                position="0 0.2 -2.5"
-                rotation="-90 0 0"
-                align="center"
-                color="black"
-                scale="1 1 1"
-                font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+                    id="videoTitle_p"
+                    value="Video 1: Environment demo"
+                    position="0 0.2 -2.5"
+                    rotation="-90 0 0"
+                    align="center"
+                    color="black"
+                    scale="1 1 1"
+                    font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
                 ></a-text>
-        
                 <a-video
                     width="7"
                     height="4.2"
@@ -188,8 +184,90 @@
                     raycaster="objects: .clickable"
                     emitevents="true"
                     cursor="fuse: false; rayOrigin: mouse;"
-                    id="mainVideo"
+                    id="mainVideo_p"
                     material="src: #vid1"
+                    scale-on-pinch
+                ></a-video>
+            </a-marker>
+
+            <a-marker
+                id="r_marker"
+                type="pattern"
+                preset="custom"
+                url="assets/R.patt"
+                videohandler="markerId: r"
+                smooth="true"
+                smoothCount="5"
+                smoothTolerance="0.01"
+                smoothThreshold="2"
+                raycaster="objects: .clickable"
+                emitevents="true"
+                cursor="fuse: false; rayOrigin: mouse;"
+                clickable
+                registerevents
+            >
+                <a-text 
+                    id="videoTitle_r"
+                    value="Right Marker: Video 1"
+                    position="0 0.2 -2.5"
+                    rotation="-90 0 0"
+                    align="center"
+                    color="black"
+                    scale="1 1 1"
+                    font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+                ></a-text>
+                <a-video
+                    width="7"
+                    height="4.2"
+                    position="0 0.1 0"
+                    rotation="-90 0 0"
+                    class="clickable"
+                    raycaster="objects: .clickable"
+                    emitevents="true"
+                    cursor="fuse: false; rayOrigin: mouse;"
+                    id="mainVideo_r"
+                    material="src: #vid1"
+                    scale-on-pinch
+                ></a-video>
+            </a-marker>
+
+            <a-marker
+                id="l_marker"
+                type="pattern"
+                preset="custom"
+                url="assets/L.patt"
+                videohandler="markerId: l"
+                smooth="true"
+                smoothCount="5"
+                smoothTolerance="0.01"
+                smoothThreshold="2"
+                raycaster="objects: .clickable"
+                emitevents="true"
+                cursor="fuse: false; rayOrigin: mouse;"
+                clickable
+                registerevents
+            >
+                <a-text 
+                    id="videoTitle_l"
+                    value="Left Marker: Video 2"
+                    position="0 0.2 -2.5"
+                    rotation="-90 0 0"
+                    align="center"
+                    color="black"
+                    scale="1 1 1"
+                    font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+                ></a-text>
+                <a-video
+                    width="7"
+                    height="4.2"
+                    position="0 0.1 0"
+                    rotation="-90 0 0"
+                    class="clickable"
+                    raycaster="objects: .clickable"
+                    emitevents="true"
+                    cursor="fuse: false; rayOrigin: mouse;"
+                    id="mainVideo_l"
+                    material="src: #vid2"
                     scale-on-pinch
                 ></a-video>
             </a-marker>
