@@ -105,32 +105,58 @@ AFRAME.registerComponent('videohandler', {
                 });
                 break;
             case 'l':
-                const videoEl     = marker.querySelector('a-video');
+                const videoEl = marker.querySelector('a-video');
                 const normalVideo = document.querySelector('#normalVideo');
                 this.currentVid = this.vid1;
-                this.allL = [ this.vid1, this.vid2, this.vid3, this.vid4 ];
+                this.allL = [this.vid1, this.vid2, this.vid3, this.vid4];
+                
+                // Ensure videos are ready to play
+                this.allL.forEach(video => {
+                    video.load();
+                    video.muted = true;
+                    video.playsInline = true;
+                });
+
+                // Initialize video material with proper settings
+                videoEl.setAttribute('material', {
+                    src: '#vid1',
+                    shader: 'flat',
+                    side: 'front',
+                    transparent: true,
+                    opacity: 1
+                });
+
+                // Setup ended event listeners with proper material updates
                 this.allL.forEach((vid, i, arr) => {
-                    vid.currentTime = 0;
                     vid.addEventListener('ended', () => {
-                    const next = (i + 1) % arr.length;
-                    this.currentVid = arr[next];
-                    videoEl.setAttribute('material', 'src', `#vid${ next+1 }`);
-                    this.videoNumber = next + 1;
-                    this.currentVid.currentTime = 0;
-                    this.currentVid.play();
-                    if (this.videoTitle) {
-                        this.videoTitle.setAttribute('value', this.videoTitles[next]);
-                    }
-                    if (!isARMode) {
-                        normalVideo.src = this.currentVid.src;
-                        normalVideo.play();
-                    }
+                        const next = (i + 1) % arr.length;
+                        this.currentVid = arr[next];
+                        const nextVideoId = `#vid${next + 1}`;
+                        videoEl.setAttribute('material', {
+                            src: nextVideoId,
+                            shader: 'flat',
+                            side: 'front',
+                            transparent: true,
+                            opacity: 1
+                        });
+                        this.videoNumber = next + 1;
+                        this.currentVid.currentTime = 0;
+                        this.currentVid.play();
+                        if (this.videoTitle) {
+                            this.videoTitle.setAttribute('value', this.videoTitles[next]);
+                        }
+                        if (!isARMode) {
+                            normalVideo.src = this.currentVid.src;
+                            normalVideo.play();
+                        }
                     });
                 });
-                // start playing immediately
-                videoEl.setAttribute('material', { src: '#vid1', shader: 'flat' });
-                this.vid1.play();
-                isPlaying = true;
+
+                // Start playing with a small delay to ensure video is ready
+                setTimeout(() => {
+                    this.vid1.play();
+                    isPlaying = true;
+                }, 100);
                 break;
         }
         
