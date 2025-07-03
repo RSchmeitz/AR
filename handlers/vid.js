@@ -201,20 +201,24 @@ AFRAME.registerComponent('videohandler', {
             }
         });
 
-        const togglePlayPause = () => {
-            if (this.currentVid) {
-                if (isPlaying) {
-                    this.currentVid.pause();
-                    playPauseBtn.innerHTML = '▶';
-                } else {
-                    this.currentVid.play();
-                    playPauseBtn.innerHTML = '⏸';
-                }
-                isPlaying = !isPlaying;
-            }
-        };
-
+        // Update next video handling in 2D mode
         const switchToNextVideo = () => {
+            if (!isARMode) {
+                // 2D mode video switching
+                this.current2DVideoIndex = (this.current2DVideoIndex + 1) % this.allVideos.length;
+                normalVideo.src = this.allVideos[this.current2DVideoIndex].src;
+                if (this.allVideos[this.current2DVideoIndex] === this.printEnv || 
+                    this.allVideos[this.current2DVideoIndex] === this.femEnv) {
+                    normalVideo.playbackRate = 4.0;
+                } else {
+                    normalVideo.playbackRate = 1.0;
+                }
+                normalVideo.currentTime = 0;
+                normalVideo.play();
+                return;
+            }
+
+            // AR mode video switching (existing code)
             if (markerId === 'r') {
                 this.videoNumber = (this.videoNumber % 2) + 1;
                 switch(this.videoNumber) {
@@ -258,7 +262,7 @@ AFRAME.registerComponent('videohandler', {
             }
         };
         
-        // Replace existing toggleMode function
+        // Update toggle mode function
         const toggleMode = () => {
             isARMode = !isARMode;
             if (isARMode) {
@@ -283,13 +287,42 @@ AFRAME.registerComponent('videohandler', {
                 // Start playing from beginning of sequence
                 this.current2DVideoIndex = 0;
                 normalVideo.src = this.allVideos[0].src;
-                // Set initial playback rate
+                normalVideo.currentTime = 0;
                 if (this.allVideos[0] === this.printEnv || this.allVideos[0] === this.femEnv) {
                     normalVideo.playbackRate = 4.0;
                 } else {
                     normalVideo.playbackRate = 1.0;
                 }
+                isPlaying = true;
+                playPauseBtn.innerHTML = '⏸';
                 normalVideo.play();
+            }
+        };
+
+        // Update play/pause handling
+        const togglePlayPause = () => {
+            if (!isARMode) {
+                if (isPlaying) {
+                    normalVideo.pause();
+                    playPauseBtn.innerHTML = '▶';
+                } else {
+                    normalVideo.play();
+                    playPauseBtn.innerHTML = '⏸';
+                }
+                isPlaying = !isPlaying;
+                return;
+            }
+
+            // Existing AR mode play/pause code
+            if (this.currentVid) {
+                if (isPlaying) {
+                    this.currentVid.pause();
+                    playPauseBtn.innerHTML = '▶';
+                } else {
+                    this.currentVid.play();
+                    playPauseBtn.innerHTML = '⏸';
+                }
+                isPlaying = !isPlaying;
             }
         };
 
