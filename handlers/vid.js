@@ -112,6 +112,17 @@ AFRAME.registerComponent('videohandler', {
                 this.currentVid = this.vid1;
                 this.videoNumber = 1;
                 // set uniform playbackRate (if desired)
+
+                this.vid1.muted = true;
+                this.vid1.play().catch(err => {
+                // if autoplay is still blocked, start on first touch
+                const onFirstTouch = () => {
+                    this.vid1.play();
+                    window.removeEventListener('touchstart', onFirstTouch);
+                };
+                window.addEventListener('touchstart', onFirstTouch, { once: true });
+                });
+
                 [this.vid1, this.vid2, this.vid3, this.vid4].forEach(v => v.playbackRate = 1.0);
 
                 // wire up ended handlers just like in R case
