@@ -55,38 +55,10 @@
                 height: 100%;
                 object-fit: contain;
             }
-            #targetBox {
-                display: none;  /* Remove this block entirely */
-            }
-            #markerGuide {
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                width: 600px;  /* Changed from 300px to 400px */
-                height: auto;
-                z-index: 999;
-                pointer-events: none;
-            }
-            #targetText {
-                position: fixed;
-                top: 28%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                color: white;
-                font-size: 16px;
-                text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-                background: rgba(0, 0, 0, 0.5);
-                padding: 8px;
-                border-radius: 4px;
-                z-index: 999;
-            }
         </style>
     </head>
 
     <body style="margin: 0; overflow: hidden;">
-        <img id="markerGuide" src="assets/nomarker.png" alt="Marker Guide"/>
-        <div id="targetText">Align marker within the image</div>
         <div id="normalVideoContainer">
             <video id="normalVideo" controls playsinline></video>
         </div>
@@ -98,77 +70,85 @@
         <a-scene
             vr-mode-ui="enabled: false"
             loading-screen="enabled: false;"
-            arjs='sourceType: webcam; debugUIEnabled: false;'
+            arjs='sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; sourceWidth:1280; sourceHeight:960; displayWidth: 1280; displayHeight: 960;'
             id="scene"
+            renderer="antialias: false; precision: mediump;"
             embedded
         >
-            <a-assets>
+            <a-assets timeout="30000">
                 <video
                     id="vid1"
                     src="assets/vid1.mp4"
                     preload="auto"
-                    response-type="arraybuffer"
-                    loop
-                    crossorigin
-                    webkit-playsinline
                     playsinline
-                    autoplay
                     muted
+                    response-type="arraybuffer"
+                    crossorigin
+                    loop
+                    width="1280"
+                    height="720"
                 ></video>
                 <video
                     id="vid2"
                     src="assets/vid2.mp4"
                     preload="auto"
-                    response-type="arraybuffer"
-                    loop
-                    crossorigin
-                    webkit-playsinline
                     playsinline
                     muted
+                    response-type="arraybuffer"
+                    crossorigin
+                    loop
+                    width="1280"
+                    height="720"
                 ></video>
                 <video
                     id="vid3"
                     src="assets/vid3.mp4"
                     preload="auto"
-                    response-type="arraybuffer"
-                    loop
-                    crossorigin
-                    webkit-playsinline
                     playsinline
                     muted
+                    response-type="arraybuffer"
+                    crossorigin
+                    loop
+                    width="1280"
+                    height="720"
                 ></video>
                 <video
                     id="vid4"
                     src="assets/vid4.mp4"
                     preload="auto"
-                    response-type="arraybuffer"
-                    loop
-                    crossorigin
-                    webkit-playsinline
                     playsinline
                     muted
+                    response-type="arraybuffer"
+                    crossorigin
+                    loop
+                    width="1280"
+                    height="720"
                 ></video>
                 <video
                     id="femEnv"
                     src="assets/FemEnv.mp4"
                     preload="auto"
+                    playsinline
+                    muted
                     response-type="arraybuffer"
                     crossorigin
-                    webkit-playsinline
                     autoplay
-                    muted
-                    playsinline
+                    loop
+                    width="1280"
+                    height="720"
                 ></video>
                 <video
                     id="printEnv"
                     src="assets/PrintEnv.mp4"
                     preload="auto"
+                    playsinline
+                    muted
                     response-type="arraybuffer"
                     crossorigin
-                    webkit-playsinline
                     autoplay
-                    muted
-                    playsinline
+                    loop
+                    width="1280"
+                    height="720"
                 ></video>
             </a-assets>            
             
@@ -252,9 +232,10 @@
                 url="assets/L.patt"
                 videohandler="markerId: l"
                 smooth="true"
-                smoothCount="5"
-                smoothTolerance="0.01"
-                smoothThreshold="2"
+                smoothCount="2"
+                smoothTolerance="0.05"
+                smoothThreshold="5"
+                maxDistance="5"
                 raycaster="objects: .clickable"
                 emitevents="true"
                 cursor="fuse: false; rayOrigin: mouse;"
@@ -288,4 +269,3 @@
             <a-entity camera></a-entity>
         </a-scene>
     </body>
-</html>

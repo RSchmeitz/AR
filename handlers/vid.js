@@ -48,6 +48,10 @@ AFRAME.registerComponent('videohandler', {
         markerId: {type: 'string', default: 'p'}
     },
     init: function () {
+        // Add performance variables
+        this.lastTick = 0;
+        this.tickInterval = 1000/30; // Limit to 30fps
+
         var marker = this.el;
         var markerId = this.data.markerId;
         let markerVisible = false;
@@ -101,10 +105,13 @@ AFRAME.registerComponent('videohandler', {
                 break;
             case 'l': 
                 this.currentVid = this.vid1;
-                // Remove automatic play of all videos, just set the initial one
-                this.vid1.currentTime = 0;
-                // Ensure proper loading of first video
-                videoEl.setAttribute('material', 'src', '#vid1');
+                [this.vid1, this.vid2, this.vid3, this.vid4].forEach(vid => {
+                    vid.currentTime = 0;
+                });
+                videoEl.setAttribute('material', {
+                    src: '#vid1',
+                    shader: 'flat'
+                });
                 isPlaying = true;
                 this.videoTitles = ["PBF - Train", "PBF - Test", 
                                   "Simple - Train", "Simple - Test"];
@@ -141,19 +148,12 @@ AFRAME.registerComponent('videohandler', {
             markerVisible = true;
             lastMarkerTime = Date.now();
             
-            // Ensure guide elements are hidden regardless of marker type
-            const markerGuide = document.querySelector("#markerGuide");
-            const targetText = document.querySelector("#targetText");
-            if (markerGuide) markerGuide.style.display = 'none';
-            if (targetText) targetText.style.display = 'none';
-            
-            if (!this.warmupComplete && this.warmupFrames >= 5) {
+            // Remove guide element code
+            if (!this.warmupComplete && this.warmupFrames >= 3) {
                 this.warmupComplete = true;
             }
             if (this.warmupComplete && this.currentVid) {
-                // Add loading check for video
-                if (this.currentVid.readyState >= 2) {  // Enough data to play
-                    this.currentVid.currentTime = 0;
+                if (!this.currentVid.playing) {
                     this.currentVid.play();
                     isPlaying = true;
                     playPauseBtn.innerHTML = '⏸';
@@ -207,17 +207,19 @@ AFRAME.registerComponent('videohandler', {
         // Update next video handling in 2D mode
         const switchToNextVideo = () => {
             if (!isARMode) {
-                // 2D mode video switching
-                this.current2DVideoIndex = (this.current2DVideoIndex + 1) % this.allVideos.length;
-                normalVideo.src = this.allVideos[this.current2DVideoIndex].src;
-                if (this.allVideos[this.current2DVideoIndex] === this.printEnv || 
-                    this.allVideos[this.current2DVideoIndex] === this.femEnv) {
-                    normalVideo.playbackRate = 4.0;
-                } else {
-                    normalVideo.playbackRate = 1.0;
-                }
-                normalVideo.currentTime = 0;
-                normalVideo.play();
+                requestAnimationFrame(() => {
+                    // 2D mode video switching
+                    this.current2DVideoIndex = (this.current2DVideoIndex + 1) % this.allVideos.length;
+                    normalVideo.src = this.allVideos[this.current2DVideoIndex].src;
+                    if (this.allVideos[this.current2DVideoIndex] === this.printEnv || 
+                        this.allVideos[this.current2DVideoIndex] === this.femEnv) {
+                        normalVideo.playbackRate = 4.0;
+                    } else {
+                        normalVideo.playbackRate = 1.0;
+                    }
+                    normalVideo.currentTime = 0;
+                    normalVideo.play();
+                });
                 return;
             }
 
@@ -240,18 +242,31 @@ AFRAME.registerComponent('videohandler', {
                     normalVideo.src = this.currentVid.src;
                     normalVideo.play();
                 }
-            } else if (markerId === 'p' || markerId === 'l') {
+            } else if (markerId === 'l') {
                 this.videoNumber = (this.videoNumber % 4) + 1;
                 
                 switch(this.videoNumber) {
-                    case 1: this.currentVid = this.vid1; break;
-                    case 2: this.currentVid = this.vid2; break;
-                    case 3: this.currentVid = this.vid3; break;
-                    case 4: this.currentVid = this.vid4; break;
+                    case 1: 
+                        this.currentVid = this.vid1;
+                        videoEl.setAttribute('material', 'src', '#vid1');
+                        break;
+                    case 2: 
+                        this.currentVid = this.vid2;
+                        videoEl.setAttribute('material', 'src', '#vid2');
+                        break;
+                    case 3: 
+                        this.currentVid = this.vid3;
+                        videoEl.setAttribute('material', 'src', '#vid3');
+                        break;
+                    case 4: 
+                        this.currentVid = this.vid4;
+                        videoEl.setAttribute('material', 'src', '#vid4');
+                        break;
                 }
 
-                this.videoTitle.setAttribute('value', this.videoTitles[this.videoNumber - 1]);
-                videoEl.setAttribute('material', 'src', '#vid' + this.videoNumber);
+                if (this.videoTitle) {
+                    this.videoTitle.setAttribute('value', this.videoTitles[this.videoNumber - 1]);
+                }
 
                 this.currentVid.currentTime = 0;
                 this.currentVid.play();
@@ -272,10 +287,7 @@ AFRAME.registerComponent('videohandler', {
                 normalVideoContainer.style.display = 'none';
                 scene.style.display = 'block';
                 modeToggleBtn.textContent = '2D';
-                if (!markerVisible) {
-                    document.querySelector("#markerGuide").style.display = 'block';
-                    targetText.style.display = 'block';
-                }
+                // Remove guide display code
                 if (this.currentVid) {
                     normalVideo.pause();
                     this.currentVid.play();
@@ -284,21 +296,12 @@ AFRAME.registerComponent('videohandler', {
                 normalVideoContainer.style.display = 'block';
                 scene.style.display = 'none';
                 modeToggleBtn.textContent = 'AR';
-                document.querySelector("#markerGuide").style.display = 'none';
-                targetText.style.display = 'none';
-                
-                // Start playing from beginning of sequence
-                this.current2DVideoIndex = 0;
-                normalVideo.src = this.allVideos[0].src;
-                normalVideo.currentTime = 0;
-                if (this.allVideos[0] === this.printEnv || this.allVideos[0] === this.femEnv) {
-                    normalVideo.playbackRate = 4.0;
-                } else {
-                    normalVideo.playbackRate = 1.0;
+                // Remove guide hide code
+                if (this.currentVid) {
+                    this.currentVid.pause();
+                    normalVideo.src = this.currentVid.src;
+                    normalVideo.play();
                 }
-                isPlaying = true;
-                playPauseBtn.innerHTML = '⏸';
-                normalVideo.play();
             }
         };
 
@@ -333,10 +336,14 @@ AFRAME.registerComponent('videohandler', {
         playPauseBtn.addEventListener('click', togglePlayPause);
         modeToggleBtn.addEventListener('click', toggleMode);
 
-        // Add tick function to handle tracking stability
-        this.tick = function() {
+        // Optimize tick function
+        this.tick = function(t) {
+            // Limit update frequency
+            if (t - this.lastTick < this.tickInterval) return;
+            this.lastTick = t;
+
             if (markerVisible && !this.warmupComplete) {
-                marker.object3D.visible = this.warmupFrames >= 5;
+                marker.object3D.visible = this.warmupFrames >= 3;
             }
         };
     },
