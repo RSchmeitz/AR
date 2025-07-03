@@ -154,42 +154,77 @@ AFRAME.registerComponent('videohandler', {
 
         var videoEl = marker.querySelector('a-video');
         let lastMarkerTime = 0;
-        const MARKER_TIMEOUT = 300; // Time in ms before considering marker lost
-
-        const targetBox = document.querySelector("#targetBox");
-        const targetText = document.querySelector("#targetText");
+        const MARKER_TIMEOUT = 1000; // Increased from 300 to 1000ms for better persistence
 
         marker.addEventListener('markerFound', function () {
-            markerVisible = true;
-            lastMarkerTime = Date.now();
+            if (!this.stabilityStartTime) {
+                this.stabilityStartTime = Date.now();
+                this.stableFrames = 0;
+                return;
+            }
+
+            this.stableFrames++;
             
-            // Remove guide element code
-            if (!this.warmupComplete && this.warmupFrames >= 3) {
-                this.warmupComplete = true;
-            }
-            if (this.warmupComplete && this.currentVid) {
-                if (!this.currentVid.playing) {
-                    this.currentVid.play();
-                    isPlaying = true;
-                    playPauseBtn.innerHTML = '⏸';
+            // Wait for 5 stable frames before showing content
+            if (this.stableFrames >= 5) {
+                markerVisible = true;
+                lastMarkerTime = Date.now();
+                
+                if (!this.warmupComplete && this.warmupFrames >= 3) {
+                    this.warmupComplete = true;
                 }
+                if (this.warmupComplete && this.currentVid) {
+                    if (!this.currentVid.playing) {
+                        this.currentVid.play();
+                        isPlaying = true;
+                        playPauseBtn.innerHTML = '⏸';
+                    }
+                }
+                this.warmupFrames = (this.warmupFrames || 0) + 1;
             }
-            this.warmupFrames = (this.warmupFrames || 0) + 1;
         }.bind(this));
 
         marker.addEventListener('markerLost', function () {
-            // Only consider the marker truly lost after MARKER_TIMEOUT ms
+            this.stabilityStartTime = null;
+            this.stableFrames = 0;
+            
+            // Increase marker timeout for smoother transitions
             setTimeout(() => {
                 if (Date.now() - lastMarkerTime > MARKER_TIMEOUT) {
                     markerVisible = false;
-                    if (this.currentVid) {
-                        this.currentVid.pause();
-                        isPlaying = false;
-                        playPauseBtn.innerHTML = '▶';
+                    if (this.currentVid && isPlaying) {
+                        // Increased timeout for video pause
+                        setTimeout(() => {
+                            if (!markerVisible) {
+                                this.currentVid.pause();
+                                isPlaying = false;
+                                playPauseBtn.innerHTML = '▶';
+                            }
+                        }, 1000); // Increased from 500 to 1000ms
                     }
                 }
             }, MARKER_TIMEOUT);
         }.bind(this));
+
+        // Add orientation change handler
+        window.addEventListener('orientationchange', () => {
+            // Wait for orientation change to complete
+            setTimeout(() => {
+                if (this.currentVid && isPlaying) {
+                    this.currentVid.play();
+                }
+            }, 200);
+        });
+
+        // Optimize tick function further
+        this.tick = AFRAME.utils.throttleTick(function(t) {
+            if (t - this.lastTick < this.tickInterval) return;
+            this.lastTick = t;
+
+            if (markerVisible && !this.warmupComplete) {
+                marker.object3D.visible = this.warmupFrames >= 3;
+            }
+        }, 33);  // Cap at ~30fps
 
         // Add these before control panel section
         this.allVideos = [this.printEnv, this.femEnv, this.vid1, this.vid2, this.vid3, this.vid4];

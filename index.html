@@ -70,7 +70,7 @@
         <a-scene
             vr-mode-ui="enabled: false"
             loading-screen="enabled: false;"
-            arjs='sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; sourceWidth:1280; sourceHeight:960; displayWidth: 1280; displayHeight: 960;'
+            arjs='sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; sourceWidth:1280; sourceHeight:960; displayWidth: 1280; displayHeight: 960; trackingMethod: best; maxDetectionRate: 30; smoothTolerance: 0.001; smoothCount: 20;'
             id="scene"
             renderer="antialias: false; precision: mediump;"
             embedded
@@ -160,9 +160,9 @@
                 url="assets/p_marker.patt"
                 videohandler="markerId: p"
                 smooth="true"
-                smoothCount="5"
-                smoothTolerance="0.01"
-                smoothThreshold="2"
+                smoothCount="20"
+                smoothTolerance="0.001"
+                smoothThreshold="10"
                 raycaster="objects: .clickable"
                 emitevents="true"
                 cursor="fuse: false; rayOrigin: mouse;"
@@ -201,9 +201,9 @@
                 url="assets/R.patt"
                 videohandler="markerId: r"
                 smooth="true"
-                smoothCount="5"
-                smoothTolerance="0.01"
-                smoothThreshold="2"
+                smoothCount="10"
+                smoothTolerance="0.005"
+                smoothThreshold="5"
                 raycaster="objects: .clickable"
                 emitevents="true"
                 cursor="fuse: false; rayOrigin: mouse;"
@@ -232,10 +232,10 @@
                 url="assets/L.patt"
                 videohandler="markerId: l"
                 smooth="true"
-                smoothCount="2"
-                smoothTolerance="0.05"
+                smoothCount="10"
+                smoothTolerance="0.005"
                 smoothThreshold="5"
-                maxDistance="5"
+                maxDistance="10"
                 raycaster="objects: .clickable"
                 emitevents="true"
                 cursor="fuse: false; rayOrigin: mouse;"
@@ -269,3 +269,4 @@
             <a-entity camera></a-entity>
         </a-scene>
     </body>
+</html>
