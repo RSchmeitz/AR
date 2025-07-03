@@ -105,52 +105,46 @@ AFRAME.registerComponent('videohandler', {
                 });
                 break;
             case 'l':
-                const videoEl = marker.querySelector('a-video');
+                // grab elements
+                const videoEl     = marker.querySelector('a-video');
                 const normalVideo = document.querySelector('#normalVideo');
+                // list out your L-marker clips
+                this.allL = [ this.vid1, this.vid2, this.vid3, this.vid4 ];
+                // start on vid1
                 this.currentVid = this.vid1;
-                this.allL = [this.vid1, this.vid2, this.vid3, this.vid4];
-                
-                // Ensure videos are ready to play
-                this.allL.forEach(video => {
-                    video.load();
-                    video.muted = true;
-                    video.playsInline = true;
-                });
+                this.videoNumber = 1;
+                // set uniform playbackRate (if desired)
+                this.allL.forEach(v => v.playbackRate = 1.0);
 
-                // Initialize video material with proper settings
-                videoEl.setAttribute('material', {
-                    src: '#vid1',
-                    side: 'front',
-                });
-
-                // Setup ended event listeners with proper material updates
+                // wire up ended handlers just like in R case
                 this.allL.forEach((vid, i, arr) => {
                     vid.addEventListener('ended', () => {
-                        const next = (i + 1) % arr.length;
-                        this.currentVid = arr[next];
-                        const nextVideoId = `#vid${next + 1}`;
-                        videoEl.setAttribute('material', {
-                            src: nextVideoId,
-                            side: 'front',
-                        });
-                        this.videoNumber = next + 1;
-                        this.currentVid.currentTime = 0;
-                        this.currentVid.play();
-                        if (this.videoTitle) {
-                            this.videoTitle.setAttribute('value', this.videoTitles[next]);
-                        }
-                        if (!isARMode) {
-                            normalVideo.src = this.currentVid.src;
-                            normalVideo.play();
-                        }
+                    const next = (i + 1) % arr.length;
+                    this.currentVid = arr[next];
+                    this.videoNumber = next + 1;
+                    // swap the AR texture
+                    videoEl.setAttribute('material', 'src', `#vid${next+1}`);
+                    // reset & play
+                    this.currentVid.currentTime = 0;
+                    this.currentVid.play();
+                    // update title
+                    if (this.videoTitle) {
+                        this.videoTitle.setAttribute('value', this.videoTitles[next]);
+                    }
+                    // mirror to 2D if needed
+                    if (!isARMode) {
+                        normalVideo.src = this.currentVid.src;
+                        normalVideo.play();
+                    }
                     });
                 });
 
+
                 // Start playing with a small delay to ensure video is ready
-                setTimeout(() => {
-                    this.vid1.play();
-                    isPlaying = true;
-                }, 100);
+                videoEl.setAttribute('material', 'src', '#vid1');
+                this.vid1.currentTime = 0;
+                this.vid1.play();
+                isPlaying = true;
                 break;
         }
         
