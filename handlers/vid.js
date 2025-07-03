@@ -108,16 +108,14 @@ AFRAME.registerComponent('videohandler', {
                 // grab elements
                 const videoEl     = marker.querySelector('a-video');
                 const normalVideo = document.querySelector('#normalVideo');
-                // list out your L-marker clips
-                this.allL = [ this.vid1, this.vid2, this.vid3, this.vid4 ];
                 // start on vid1
                 this.currentVid = this.vid1;
                 this.videoNumber = 1;
                 // set uniform playbackRate (if desired)
-                this.allL.forEach(v => v.playbackRate = 1.0);
+                [this.vid1, this.vid2, this.vid3, this.vid4].forEach(v => v.playbackRate = 1.0);
 
                 // wire up ended handlers just like in R case
-                this.allL.forEach((vid, i, arr) => {
+                [this.vid1, this.vid2, this.vid3, this.vid4].forEach((vid, i, arr) => {
                     vid.addEventListener('ended', () => {
                     const next = (i + 1) % arr.length;
                     this.currentVid = arr[next];
