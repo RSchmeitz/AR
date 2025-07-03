@@ -56,13 +56,15 @@
                 object-fit: contain;
             }
             #targetBox {
+                display: none;  /* Remove this block entirely */
+            }
+            #markerGuide {
                 position: fixed;
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
-                width: 300px;
-                height: 300px;
-                border: 3px dashed rgba(255, 255, 255, 0.8);
+                width: 600px;  /* Changed from 300px to 400px */
+                height: auto;
                 z-index: 999;
                 pointer-events: none;
             }
@@ -83,8 +85,8 @@
     </head>
 
     <body style="margin: 0; overflow: hidden;">
-        <div id="targetBox"></div>
-        <div id="targetText">Align marker within the box</div>
+        <img id="markerGuide" src="assets/nomarker.png" alt="Marker Guide"/>
+        <div id="targetText">Align marker within the image</div>
         <div id="normalVideoContainer">
             <video id="normalVideo" controls playsinline></video>
         </div>
@@ -121,6 +123,7 @@
                     loop
                     crossorigin
                     webkit-playsinline
+                    autoplay
                     muted
                     playsinline
                 ></video>
@@ -132,6 +135,7 @@
                     loop
                     crossorigin
                     webkit-playsinline
+                    autoplay
                     muted
                     playsinline
                 ></video>
@@ -143,6 +147,29 @@
                     loop
                     crossorigin
                     webkit-playsinline
+                    autoplay
+                    muted
+                    playsinline
+                ></video>
+                <video
+                    id="femEnv"
+                    src="assets/FemEnv.mp4"
+                    preload="auto"
+                    response-type="arraybuffer"
+                    crossorigin
+                    webkit-playsinline
+                    autoplay
+                    muted
+                    playsinline
+                ></video>
+                <video
+                    id="printEnv"
+                    src="assets/PrintEnv.mp4"
+                    preload="auto"
+                    response-type="arraybuffer"
+                    crossorigin
+                    webkit-playsinline
+                    autoplay
                     muted
                     playsinline
                 ></video>
@@ -167,8 +194,8 @@
             >
                 <a-text 
                     id="videoTitle_p"
-                    value="Video 1: Environment demo"
-                    position="0 0.2 -2.5"
+                    value="PBF - Train"
+                    position="0 0.2 -1.5"
                     rotation="-90 0 0"
                     align="center"
                     color="black"
@@ -176,8 +203,8 @@
                     font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
                 ></a-text>
                 <a-video
-                    width="7"
-                    height="4.2"
+                    width="3"
+                    height="1.8"
                     position="0 0.1 0"
                     rotation="-90 0 0"
                     class="clickable"
@@ -206,27 +233,17 @@
                 clickable
                 registerevents
             >
-                <a-text 
-                    id="videoTitle_r"
-                    value="Right Marker: Video 1"
-                    position="0 0.2 -2.5"
-                    rotation="-90 0 0"
-                    align="center"
-                    color="black"
-                    scale="1 1 1"
-                    font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
-                ></a-text>
                 <a-video
-                    width="7"
-                    height="4.2"
-                    position="0 0.1 0"
+                    width="1.638"    
+                    height="2"      
+                    position="0 0 0"
                     rotation="-90 0 0"
                     class="clickable"
                     raycaster="objects: .clickable"
                     emitevents="true"
                     cursor="fuse: false; rayOrigin: mouse;"
                     id="mainVideo_r"
-                    material="src: #vid1"
+                    material="src: #printEnv"
                     scale-on-pinch
                 ></a-video>
             </a-marker>
@@ -249,8 +266,8 @@
             >
                 <a-text 
                     id="videoTitle_l"
-                    value="Left Marker: Video 2"
-                    position="0 0.2 -2.5"
+                    value="PBF - Train"
+                    position="0 0.2 -1"
                     rotation="-90 0 0"
                     align="center"
                     color="black"
@@ -258,9 +275,9 @@
                     font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
                 ></a-text>
                 <a-video
-                    width="7"
-                    height="4.2"
-                    position="0 0.1 0"
+                    width="4.5"    
+                    height="1.5"     
+                    position="0 0.001 0"
                     rotation="-90 0 0"
                     class="clickable"
                     raycaster="objects: .clickable"

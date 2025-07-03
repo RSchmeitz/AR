@@ -50,16 +50,66 @@ AFRAME.registerComponent('videohandler', {
     init: function () {
         var marker = this.el;
         var markerId = this.data.markerId;
+        let markerVisible = false;
+        let isPlaying = false;
+        let isARMode = true;
         
         this.vid1 = document.querySelector("#vid1");
         this.vid2 = document.querySelector("#vid2");
         this.vid3 = document.querySelector("#vid3");
         this.vid4 = document.querySelector("#vid4");
+        this.femEnv = document.querySelector("#femEnv");
+        this.printEnv = document.querySelector("#printEnv");
         
         // Set current video based on marker
         switch(markerId) {
-            case 'r': this.currentVid = this.vid1; break;
-            case 'l': this.currentVid = this.vid2; break;
+            case 'r': 
+                this.currentVid = this.printEnv;
+                this.printEnv.playbackRate = 4.0;
+                this.femEnv.playbackRate = 4.0;
+                // Add ended event listeners for R marker videos
+                this.printEnv.addEventListener('ended', () => {
+                    if (markerId === 'r') {
+                        this.currentVid = this.femEnv;
+                        videoEl.setAttribute('material', 'src', '#femEnv');
+                        this.videoNumber = 2;
+                        this.femEnv.currentTime = 0;
+                        this.femEnv.playbackRate = 4.0;
+                        this.femEnv.play();
+                        if (!isARMode) {
+                            normalVideo.src = this.femEnv.src;
+                            normalVideo.playbackRate = 4.0;
+                            normalVideo.play();
+                        }
+                    }
+                });
+                this.femEnv.addEventListener('ended', () => {
+                    if (markerId === 'r') {
+                        this.currentVid = this.printEnv;
+                        videoEl.setAttribute('material', 'src', '#printEnv');
+                        this.videoNumber = 1;
+                        this.printEnv.currentTime = 0;
+                        this.printEnv.playbackRate = 4.0;
+                        this.printEnv.play();
+                        if (!isARMode) {
+                            normalVideo.src = this.printEnv.src;
+                            normalVideo.playbackRate = 4.0;
+                            normalVideo.play();
+                        }
+                    }
+                });
+                break;
+            case 'l': 
+                this.currentVid = this.vid1;
+                // Initialize all videos for L marker
+                [this.vid1, this.vid2, this.vid3, this.vid4].forEach(vid => {
+                    vid.currentTime = 0;
+                    vid.play();
+                });
+                isPlaying = true;
+                this.videoTitles = ["PBF - Train", "PBF - Test", 
+                                  "Simple - Train", "Simple - Test"];
+                break;
             default: this.currentVid = this.vid1; break;
         }
         
@@ -69,19 +119,19 @@ AFRAME.registerComponent('videohandler', {
         // Set titles based on marker
         switch(markerId) {
             case 'r':
-                this.videoTitles = ["Right Marker: Video 1"];
+                this.videoTitles = ["SimpleEnv Demo", "FemEnv Demo"];
                 break;
             case 'l':
-                this.videoTitles = ["Left Marker: Video 2"];
+                this.videoTitles = ["PBF - Train", "PBF - Test", 
+                                  "Simple - Train", "Simple - Test"];
                 break;
             default:
-                this.videoTitles = ["Video 1: Environment demo", "Video 2: RL Agent Playthrough", 
-                                  "Video 3: RL Agent Playthrough", "Video 4: RL Agent Playthrough"];
+                this.videoTitles = ["PBF - Train", "PBF - Test", 
+                                  "Simple - Train", "Simple - Test"];
                 break;
         }
 
         var videoEl = marker.querySelector('a-video');
-        let markerVisible = false;
         let lastMarkerTime = 0;
         const MARKER_TIMEOUT = 300; // Time in ms before considering marker lost
 
@@ -91,6 +141,13 @@ AFRAME.registerComponent('videohandler', {
         marker.addEventListener('markerFound', function () {
             markerVisible = true;
             lastMarkerTime = Date.now();
+            
+            // Ensure guide elements are hidden regardless of marker type
+            const markerGuide = document.querySelector("#markerGuide");
+            const targetText = document.querySelector("#targetText");
+            if (markerGuide) markerGuide.style.display = 'none';
+            if (targetText) targetText.style.display = 'none';
+            
             if (!this.warmupComplete && this.warmupFrames >= 5) {
                 this.warmupComplete = true;
             }
@@ -100,10 +157,6 @@ AFRAME.registerComponent('videohandler', {
                 playPauseBtn.innerHTML = '⏸';
             }
             this.warmupFrames = (this.warmupFrames || 0) + 1;
-            
-            // Hide guide elements when marker is found
-            targetBox.style.display = 'none';
-            targetText.style.display = 'none';
         }.bind(this));
 
         marker.addEventListener('markerLost', function () {
@@ -120,6 +173,10 @@ AFRAME.registerComponent('videohandler', {
             }, MARKER_TIMEOUT);
         }.bind(this));
 
+        // Add these before control panel section
+        this.allVideos = [this.printEnv, this.femEnv, this.vid1, this.vid2, this.vid3, this.vid4];
+        this.current2DVideoIndex = 0;
+
         // Control panel functionality
         const nextBtn = document.querySelector("#nextVideo");
         const playPauseBtn = document.querySelector("#playPauseBtn");
@@ -127,8 +184,22 @@ AFRAME.registerComponent('videohandler', {
         const normalVideoContainer = document.querySelector("#normalVideoContainer");
         const normalVideo = document.querySelector("#normalVideo");
         const scene = document.querySelector("a-scene");
-        let isPlaying = false;
-        let isARMode = true;
+
+        // Add 2D mode video ended handler
+        normalVideo.addEventListener('ended', () => {
+            if (!isARMode) {
+                this.current2DVideoIndex = (this.current2DVideoIndex + 1) % this.allVideos.length;
+                normalVideo.src = this.allVideos[this.current2DVideoIndex].src;
+                // Set correct playback rate based on video type
+                if (this.allVideos[this.current2DVideoIndex] === this.printEnv || 
+                    this.allVideos[this.current2DVideoIndex] === this.femEnv) {
+                    normalVideo.playbackRate = 4.0;
+                } else {
+                    normalVideo.playbackRate = 1.0;
+                }
+                normalVideo.play();
+            }
+        });
 
         const togglePlayPause = () => {
             if (this.currentVid) {
@@ -144,8 +215,25 @@ AFRAME.registerComponent('videohandler', {
         };
 
         const switchToNextVideo = () => {
-            // Only allow video switching for p_marker
-            if (markerId === 'p') {
+            if (markerId === 'r') {
+                this.videoNumber = (this.videoNumber % 2) + 1;
+                switch(this.videoNumber) {
+                    case 1: this.currentVid = this.printEnv; break;
+                    case 2: this.currentVid = this.femEnv; break;
+                }
+                // Remove title update for r marker
+                videoEl.setAttribute('material', 'src', '#' + (this.videoNumber === 1 ? 'printEnv' : 'femEnv'));
+                
+                this.currentVid.currentTime = 0;
+                this.currentVid.play();
+                isPlaying = true;
+                playPauseBtn.innerHTML = '⏸';
+
+                if (!isARMode) {
+                    normalVideo.src = this.currentVid.src;
+                    normalVideo.play();
+                }
+            } else if (markerId === 'p' || markerId === 'l') {
                 this.videoNumber = (this.videoNumber % 4) + 1;
                 
                 switch(this.videoNumber) {
@@ -169,16 +257,16 @@ AFRAME.registerComponent('videohandler', {
                 }
             }
         };
-
+        
+        // Replace existing toggleMode function
         const toggleMode = () => {
             isARMode = !isARMode;
             if (isARMode) {
                 normalVideoContainer.style.display = 'none';
                 scene.style.display = 'block';
                 modeToggleBtn.textContent = '2D';
-                // Show guide elements when switching to AR mode (only if marker not detected)
                 if (!markerVisible) {
-                    targetBox.style.display = 'block';
+                    document.querySelector("#markerGuide").style.display = 'block';
                     targetText.style.display = 'block';
                 }
                 if (this.currentVid) {
@@ -189,14 +277,19 @@ AFRAME.registerComponent('videohandler', {
                 normalVideoContainer.style.display = 'block';
                 scene.style.display = 'none';
                 modeToggleBtn.textContent = 'AR';
-                // Hide guide elements in 2D mode
-                targetBox.style.display = 'none';
+                document.querySelector("#markerGuide").style.display = 'none';
                 targetText.style.display = 'none';
-                if (this.currentVid) {
-                    this.currentVid.pause();
-                    normalVideo.src = this.currentVid.src;
-                    normalVideo.play();
+                
+                // Start playing from beginning of sequence
+                this.current2DVideoIndex = 0;
+                normalVideo.src = this.allVideos[0].src;
+                // Set initial playback rate
+                if (this.allVideos[0] === this.printEnv || this.allVideos[0] === this.femEnv) {
+                    normalVideo.playbackRate = 4.0;
+                } else {
+                    normalVideo.playbackRate = 1.0;
                 }
+                normalVideo.play();
             }
         };
 
