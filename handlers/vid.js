@@ -120,10 +120,7 @@ AFRAME.registerComponent('videohandler', {
                 // Initialize video material with proper settings
                 videoEl.setAttribute('material', {
                     src: '#vid1',
-                    shader: 'flat',
                     side: 'front',
-                    transparent: true,
-                    opacity: 1
                 });
 
                 // Setup ended event listeners with proper material updates
@@ -134,10 +131,7 @@ AFRAME.registerComponent('videohandler', {
                         const nextVideoId = `#vid${next + 1}`;
                         videoEl.setAttribute('material', {
                             src: nextVideoId,
-                            shader: 'flat',
                             side: 'front',
-                            transparent: true,
-                            opacity: 1
                         });
                         this.videoNumber = next + 1;
                         this.currentVid.currentTime = 0;
