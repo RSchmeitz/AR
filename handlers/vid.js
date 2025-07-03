@@ -101,11 +101,10 @@ AFRAME.registerComponent('videohandler', {
                 break;
             case 'l': 
                 this.currentVid = this.vid1;
-                // Initialize all videos for L marker
-                [this.vid1, this.vid2, this.vid3, this.vid4].forEach(vid => {
-                    vid.currentTime = 0;
-                    vid.play();
-                });
+                // Remove automatic play of all videos, just set the initial one
+                this.vid1.currentTime = 0;
+                // Ensure proper loading of first video
+                videoEl.setAttribute('material', 'src', '#vid1');
                 isPlaying = true;
                 this.videoTitles = ["PBF - Train", "PBF - Test", 
                                   "Simple - Train", "Simple - Test"];
@@ -152,9 +151,13 @@ AFRAME.registerComponent('videohandler', {
                 this.warmupComplete = true;
             }
             if (this.warmupComplete && this.currentVid) {
-                this.currentVid.play();
-                isPlaying = true;
-                playPauseBtn.innerHTML = '⏸';
+                // Add loading check for video
+                if (this.currentVid.readyState >= 2) {  // Enough data to play
+                    this.currentVid.currentTime = 0;
+                    this.currentVid.play();
+                    isPlaying = true;
+                    playPauseBtn.innerHTML = '⏸';
+                }
             }
             this.warmupFrames = (this.warmupFrames || 0) + 1;
         }.bind(this));
