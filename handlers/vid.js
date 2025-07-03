@@ -53,6 +53,7 @@ AFRAME.registerComponent('videohandler', {
         this.tickInterval = 1000/30; // Limit to 30fps
 
         var marker = this.el;
+        
         var markerId = this.data.markerId;
         let markerVisible = false;
         let isPlaying = false;
@@ -103,20 +104,34 @@ AFRAME.registerComponent('videohandler', {
                     }
                 });
                 break;
-            case 'l': 
+            case 'l':
+                const videoEl     = marker.querySelector('a-video');
+                const normalVideo = document.querySelector('#normalVideo');
                 this.currentVid = this.vid1;
-                [this.vid1, this.vid2, this.vid3, this.vid4].forEach(vid => {
+                this.allL = [ this.vid1, this.vid2, this.vid3, this.vid4 ];
+                this.allL.forEach((vid, i, arr) => {
                     vid.currentTime = 0;
+                    vid.addEventListener('ended', () => {
+                    const next = (i + 1) % arr.length;
+                    this.currentVid = arr[next];
+                    videoEl.setAttribute('material', 'src', `#vid${ next+1 }`);
+                    this.videoNumber = next + 1;
+                    this.currentVid.currentTime = 0;
+                    this.currentVid.play();
+                    if (this.videoTitle) {
+                        this.videoTitle.setAttribute('value', this.videoTitles[next]);
+                    }
+                    if (!isARMode) {
+                        normalVideo.src = this.currentVid.src;
+                        normalVideo.play();
+                    }
+                    });
                 });
-                videoEl.setAttribute('material', {
-                    src: '#vid1',
-                    shader: 'flat'
-                });
+                // start playing immediately
+                videoEl.setAttribute('material', { src: '#vid1', shader: 'flat' });
+                this.vid1.play();
                 isPlaying = true;
-                this.videoTitles = ["PBF - Train", "PBF - Test", 
-                                  "Simple - Train", "Simple - Test"];
                 break;
-            default: this.currentVid = this.vid1; break;
         }
         
         this.videoTitle = document.querySelector("#videoTitle_" + markerId);
