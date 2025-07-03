@@ -105,56 +105,48 @@ AFRAME.registerComponent('videohandler', {
                 });
                 break;
             case 'l':
-                // grab elements
-                const videoEl     = marker.querySelector('a-video');
+                const videoEl = marker.querySelector('a-video');
                 const normalVideo = document.querySelector('#normalVideo');
-                // start on vid1
+                
                 this.currentVid = this.vid1;
                 this.videoNumber = 1;
-                // set uniform playbackRate (if desired)
 
-                this.vid1.muted = true;
-                this.vid1.play().catch(err => {
-                // if autoplay is still blocked, start on first touch
-                const onFirstTouch = () => {
-                    this.vid1.play();
-                    window.removeEventListener('touchstart', onFirstTouch);
-                };
-                window.addEventListener('touchstart', onFirstTouch, { once: true });
+                [this.vid1, this.vid2, this.vid3, this.vid4].forEach(v => {
+                    v.playbackRate = 1.0;
+                    v.muted = true;
                 });
 
-                [this.vid1, this.vid2, this.vid3, this.vid4].forEach(v => v.playbackRate = 1.0);
+                const playVideoSafely = (video) => {
+                    video.play().catch(() => {
+                        const onFirstInteraction = () => {
+                            video.play();
+                            window.removeEventListener('touchstart', onFirstInteraction);
+                        };
+                        window.addEventListener('touchstart', onFirstInteraction, { once: true });
+                    });
+                };
 
-                // wire up ended handlers just like in R case
                 [this.vid1, this.vid2, this.vid3, this.vid4].forEach((vid, i, arr) => {
                     vid.addEventListener('ended', () => {
-                    const next = (i + 1) % arr.length;
-                    this.currentVid = arr[next];
-                    this.videoNumber = next + 1;
-                    // swap the AR texture
-                    videoEl.setAttribute('material', 'src', `#vid${next+1}`);
-                    // reset & play
-                    this.currentVid.currentTime = 0;
-                    this.currentVid.play();
-                    // update title
-                    if (this.videoTitle) {
-                        this.videoTitle.setAttribute('value', this.videoTitles[next]);
-                    }
-                    // mirror to 2D if needed
-                    if (!isARMode) {
-                        normalVideo.src = this.currentVid.src;
-                        normalVideo.play();
-                    }
+                        const next = (i + 1) % arr.length;
+                        this.currentVid = arr[next];
+                        this.videoNumber = next + 1;
+                        videoEl.setAttribute('material', 'src', `#vid${next+1}`);
+                        this.currentVid.currentTime = 0;
+                        playVideoSafely(this.currentVid);
+                        if (!isARMode) {
+                            normalVideo.src = this.currentVid.src;
+                            playVideoSafely(normalVideo);
+                        }
                     });
                 });
 
-
-                // Start playing with a small delay to ensure video is ready
                 videoEl.setAttribute('material', 'src', '#vid1');
                 this.vid1.currentTime = 0;
-                this.vid1.play();
+                playVideoSafely(this.vid1);
                 isPlaying = true;
                 break;
+
         }
         
         this.videoTitle = document.querySelector("#videoTitle_" + markerId);
