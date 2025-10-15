@@ -16,17 +16,17 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      # (optional) build step here, e.g. npm run build
+      - name: Build site
+        run: |
+          npm ci
+          npm run build     # <-- or your build command
       - uses: actions/configure-pages@v5
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/   # your build output folder
+          path: dist/       # <-- must match your actual output folder
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
