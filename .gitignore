@@ -1,0 +1,43 @@
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Build output
+build/
+dist/
+.cache/
+.next/
+out/
+tmp/
+temp/
+
+# Environment files
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# IDE configuration
+.vscode/
+.idea/
+*.iml
+
+# Asset staging
+assets/new/
+assets/og/
+assets/output.mp4

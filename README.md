@@ -55,6 +55,13 @@ this.videoTitles = ["Experimental Results", "Comparative Analysis"];
 ## Technical Notes
 - Marker detection latency: ~300ms
 - Video format: H.264 encoded MP4
+- Normalize videos with FFmpeg to ensure AR.js compatibility. Example command:
+
+```bash
+ffmpeg -i vid1.mp4 -c:v libx264 -profile:v baseline -level 3.0 -pix_fmt yuv420p -vf scale=1280:332 -preset slow -crf 23 -an vid1_fixed.mp4
+```
+
+Adjust the scale filter to match your target resolution while keeping width even and height divisible by two. The `-an` flag removes audio; drop it if you need sound.
 
 ## Deployment on GitHub Pages
 
